@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "iostream": "cpp",
+        "charconv": "c",
+        "xlocmon": "c",
+        "xlocnum": "c",
+        "ios": "c",
+        "xiosbase": "c"
+    }
+}
