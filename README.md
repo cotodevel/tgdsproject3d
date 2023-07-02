@@ -1,6 +1,4 @@
 ![ToolchainGenericDS](img/TGDS-Logo.png)
-![ToolchainGenericDS](img/aq1.png)
-![ToolchainGenericDS](img/aq2.png)
 
 NTR/TWL SDK: TGDS1.65
 
