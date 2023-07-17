@@ -16,6 +16,7 @@
     <ClInclude Include="..\src\TGDSTypes.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\..\toolchaingenericds\src\common\libutils\arm9\source\ndsDisplayListUtils.c" />
     <ClCompile Include="..\src\image_dxt.c" />
     <ClCompile Include="..\src\image_helper.c" />
     <ClCompile Include="..\src\main.c" />
