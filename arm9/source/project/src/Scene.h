@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include "ndsDisplayListUtils.h"
 
 #if defined(_WIN32) || defined(WIN32)
     #include <windows.h>
@@ -84,6 +85,7 @@ extern void keyboardInputSpecial(int key, int x, int y);	/// handles keyboard in
 extern void drawScene(void);	/// Renders a single frame of the scene
 extern struct Scene scene;	/// the scene we render
 
+
 extern void initializeCamera(struct Camera * Inst);	/// initialized the camera to default position
 extern void position(struct Camera * Inst);	/// sets up camera at current position
 extern void dec(struct Camera * Inst);	/// decreases distance to origin
@@ -92,14 +94,11 @@ extern void clockwise(struct Camera * Inst);	/// rotate scene clockwise
 extern void anticlockwise(struct Camera * Inst);	/// rotate scene anticlockwise
 extern void tiltup(struct Camera * Inst);	/// tilts camera upwards
 extern void tiltdown(struct Camera * Inst);	/// tilts camera downwards
-
 extern int TWLPrintf(const char *fmt, ...);
-
-extern void drawSphere(float r, int lats, int longs);
-extern void drawCircle(GLfloat x, GLfloat y, GLfloat r, GLfloat BALL_RADIUS);
-extern void drawCylinder(int numMajor, int numMinor, float height, float radius);
 extern GLint DLSOLIDCUBE0_06F;
 extern void glut2SolidCube0_06f();
+extern GLint DLCIRCLELIGHTSRC;
+extern void drawSphereCustom(float r, int lats, int longs);
 extern int InitGL(int argc, char *argv[]); /// initialises OpenGL
 extern void setupTGDSProjectOpenGLDisplayLists();
 extern GLvoid ReSizeGLScene(GLsizei width, GLsizei height);
@@ -107,7 +106,6 @@ extern void render3DUpperScreen();
 extern void render3DBottomScreen();
 extern int startTGDSProject(int argc, char *argv[]);
 extern void TGDSAPPExit(u32 fn_address);
-
 #ifdef __cplusplus
 }
 #endif
