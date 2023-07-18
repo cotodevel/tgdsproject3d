@@ -4,6 +4,7 @@
 #ifdef _MSC_VER
 #include <GL\GLUT.h>
 #include "TGDSTypes.h"
+#include "..\..\..\..\..\toolchaingenericds\src\common\libutils\arm9\source\ndsDisplayListUtils.h"
 #endif
 
 #ifdef ARM9
@@ -12,15 +13,14 @@
 #include "VideoGL.h"
 #include "SoundTGDS.h"
 #include "main.h"
+#include <time.h>
 #endif
 
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#include <time.h>
 #include <math.h>
-#include "ndsDisplayListUtils.h"
 
 #if defined(_WIN32) || defined(WIN32)
     #include <windows.h>
