@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\..\toolchaingenericds\src\common\libutils\arm9\source\ndsDisplayListUtils.h" />
     <ClInclude Include="..\src\Scene.h" />
     <ClInclude Include="..\src\SOIL.h" />
     <ClInclude Include="..\src\TGDSTypes.h" />
