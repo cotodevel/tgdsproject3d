@@ -467,60 +467,19 @@ int startTGDSProject(int argc, char *argv[])
 #endif
 
 #if defined(ARM9)
-	BgMusic();
+	BgMusicOff();
+	BgMusic("0:/bgm.ima");
 	startTimerCounter(tUnitsMilliseconds, 1);
     glMaterialShinnyness();
 	glReset(); //Depend on GX stack to render scene
 	while(1==1){
 		//Handle Input & game logic
 		scanKeys();
-		keyboardInputSpecial((int)keysHeld(), 0, 0);
+		u32 keys = keysHeld()&(KEY_UP|KEY_DOWN|KEY_LEFT|KEY_RIGHT|KEY_SELECT|KEY_START);
+		keyboardInputSpecial(keys, 0, 0);
 		
-		//sound
-		switch(pendPlay){
-			case(1):{
-				internalCodecType = playSoundStream(curChosenBrowseFile, _FileHandleVideo, _FileHandleAudio);
-				if(internalCodecType == SRC_NONE){
-					//stop right now
-					pendPlay = 2;
-				}
-				else{
-					pendPlay = 3;
-				}
-			}
-			break;
-			case(2):{
-				stopSoundStreamUser();
-			}
-			break;
-		}
 		
-		//Audio track ended? Repeat
-		if((pendPlay == 3) && (cutOff == true)){ 
-			//Let decoder close context so we can start again
-			closeSound();
-			
-			updateStream();	
-			updateStream();
-			updateStream();
-			updateStream();
-			
-			updateStream();	
-			updateStream();
-			updateStream();
-			updateStream();
-			
-			updateStream();	
-			updateStream();
-			updateStream();
-			updateStream();
-			
-			updateStream();	
-			updateStream();
-			updateStream();
-			updateStream();
-			pendPlay = 1;
-		}
+		//sound (ARM7)
 		
 		//Render
 		drawScene();
