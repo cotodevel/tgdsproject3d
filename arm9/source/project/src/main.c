@@ -103,12 +103,11 @@ int main(int argc, char *argv[])
 	}
 
 	int ret=FS_init();
-	if (ret == 0)
-	{
-		printf("FS Init ok.");
-	}
-	else{
-		printf("FS Init error: %d", ret);
+	if (ret != 0){
+		printf("%s: FS Init error: %d >%d", TGDSPROJECTNAME, ret, TGDSPrintfColor_Red);
+		while(1==1){
+			swiDelay(1);
+		}
 	}
 	
 	asm("mcr	p15, 0, r0, c7, c10, 4");
@@ -203,6 +202,8 @@ int main(int argc, char *argv[])
 	//TGDS-Projects -> legacy NTR TSC compatibility
 	if(__dsimode == true){
 		TWLSetTouchscreenTWLMode();
+		
+		TWLSetTouchscreenNTRMode(); //required when WoopsiSDK TWL mode is NOT used, because of TWL mode keypad
 	}
 	REG_IME = 1;
 	
@@ -457,7 +458,8 @@ void keyboardInputSpecial(int key, int x, int y){
 		}break;
 
 		case KEY_A:{
-			BgMusic(); //turn on bg music
+			BgMusicOff();
+			BgMusic("0:/bgm.ima"); //turn on bg music
 		}break;
 		
 		case KEY_B:{
