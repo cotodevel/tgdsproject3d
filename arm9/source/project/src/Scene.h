@@ -10,10 +10,11 @@
 #ifdef ARM9
 #include <math.h>
 #include "timerTGDS.h"
+#include "biosTGDS.h"
 #include "VideoGL.h"
 #include "soundTGDS.h"
 #include "main.h"
-#include <time.h>
+#include "ipcfifoTGDSUser.h"
 #endif
 
 #include <stdio.h>
@@ -21,6 +22,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 
 #if defined(_WIN32) || defined(WIN32)
     #include <windows.h>
@@ -32,6 +34,12 @@
 #ifdef _MSC_VER
 #include "SOIL.h"
 #include "GL\glut.h"
+#endif
+
+#ifdef ARM9
+#include "Texture_Cube.h"
+#include "consoleTGDS.h"
+#include "imagepcx.h"
 #endif
 
 #define SIGN(x) (x < 0 ? (-1) : 1)
@@ -54,6 +62,10 @@ struct Scene {
 	bool TGDSProjectDual3DEnabled;
 	struct Camera camera;	/// camera (duh)
 };
+
+#ifdef ARM9
+#define controlCamera 1 //enable it to control camera ''position(&Inst->camera);'' instead of rotating on the x/y axes
+#endif
 
 #endif
 
@@ -106,6 +118,20 @@ extern void render3DUpperScreen();
 extern void render3DBottomScreen();
 extern int startTGDSProject(int argc, char *argv[]);
 extern void TGDSAPPExit(u32 fn_address);
+
+extern GLfloat boxcol[5][3];
+extern GLfloat topcol[5][3];
+extern GLuint box;
+extern GLuint	top;
+extern GLuint	texture[1];
+extern GLvoid BuildLists();
+extern GLfloat	xrot;
+extern GLfloat	yrot;
+
+#ifdef WIN32
+extern void load_image(const char* filename);
+#endif
+
 #ifdef __cplusplus
 }
 #endif
