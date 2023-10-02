@@ -11,7 +11,7 @@
 #include <math.h>
 #include "timerTGDS.h"
 #include "biosTGDS.h"
-#include "VideoGL.h"
+#include "videoGL.h"
 #include "soundTGDS.h"
 #include "main.h"
 #include "ipcfifoTGDSUser.h"
