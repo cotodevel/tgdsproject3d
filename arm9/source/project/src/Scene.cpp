@@ -609,7 +609,7 @@ void setupTGDSProjectOpenGLDisplayLists(){
 			float lat1 = PI * (-0.5 + (float)i / lats);
 			float z1 = sin((float)lat1);
 			float zr1 = cos((float)lat1);
-			glBegin(GL_QUAD_STRIP);
+			glBegin(GL_TRIANGLE_STRIP);
 			for (j = 0; j <= longs; j++) {
 				float lng = 2 * PI * (float)(j - 1) / longs;
 				float x = cos(lng);
