@@ -4,6 +4,7 @@
 #endif
 
 #include "Scene.h"
+#include "GXPayload.h" //required to flush the GX<->DMA<->FIFO circuit on real hardware
 
 #ifndef _MSC_VER
 					// //
@@ -16,25 +17,30 @@ int widthScene;	/// the width of the window
 int heightScene;	/// the height of the window
 
 // light 0 colours
+
+//https://www.glprogramming.com/red/chapter05.html
+//The GL_DIFFUSE parameter probably most closely correlates with what you naturally think of as "the color of a light." 
+//It defines the RGBA color of the diffuse light that a particular light source adds to a scene. By default, GL_DIFFUSE is (1.0, 1.0, 1.0, 1.0) for GL_LIGHT0, 
+//which produces a bright, white light as shown in the left side of "Plate 13" in Appendix I. 
+//The default value for any other light (GL_LIGHT1, ... , GL_LIGHT7) is (0.0, 0.0, 0.0, 0.0).
+GLfloat light_diffuse0Scene[4]	= {0.4f, 0.4f, 0.4f, 1.01f}; //WIN32
+
 #ifdef WIN32
-GLfloat ambient0Scene[4]	= {0.1f, 0.1f, 0.1f, 1.0f}; //WIN32
-GLfloat diffuse0Scene[4]	= {0.4f, 0.4f, 0.4f, 1.01f}; //WIN32
-GLfloat specular0Scene[4]	= {0.2f, 0.2f, 0.2f, 1.0f}; //WIN32
-GLfloat position0Scene[4]	= {0.0f, -1.0f, 0.0f, 0.0f}; //WIN32
+GLfloat light_ambient0Scene[4]	= {0.1f, 0.1f, 0.1f, 1.0f}; //WIN32
+GLfloat light_specular0Scene[4]	= {0.2f, 0.2f, 0.2f, 1.0f}; //WIN32
+GLfloat light_position0Scene[4]	= {0.0f, -1.0f, 0.0f, 0.0f}; //WIN32
 #endif
 #ifdef ARM9
-GLfloat ambient0Scene[]  = { 0.0f, 0.0f, 0.0f, 1.0f }; //NDS
-GLfloat diffuse0Scene[]  = { 1.0f, 1.0f, 1.0f, 1.0f }; //NDS
-GLfloat specular0Scene[] = { 1.0f, 1.0f, 1.0f, 1.0f }; //NDS
-GLfloat position0Scene[] = { 2.0f, 5.0f, 5.0f, 0.0f }; //NDS
+GLfloat light_ambient0Scene[]  = { 1.0f, 1.0f, 1.0f, 1.0f }; //NDS
+GLfloat light_specular0Scene[] = { 1.0f, 1.0f, 1.0f, 1.0f }; //NDS
+GLfloat light_position0Scene[] = { 0.0f, -1.0f, 0.0f, 0.0f }; //NDS
 #endif
 
 // light 1 colours
-GLfloat ambient1Scene[4]	= {0.1f, 0.1f, 0.1f, 1.0f};
-GLfloat diffuse1Scene[4]	= {0.45f, 0.45f, 0.45f, 1.0f};
-GLfloat specular1Scene[4]	= {0.5f, 0.5f, 0.5f, 1.0f};
-GLfloat position1Scene[4]	= {-2.0f, -5.0f, -5.0f, -1.0f};
-GLfloat direction1Scene[4]	= {0.0f, 0.0f, -1.0f};
+GLfloat light_ambient1Scene[4]	= {0.1f, 0.1f, 0.1f, 1.0f};
+GLfloat light_diffuse1Scene[4]	= {0.45f, 0.45f, 0.45f, 1.0f};
+GLfloat light_specular1Scene[4]	= {0.5f, 0.5f, 0.5f, 1.0f};
+GLfloat light_position1Scene[4]	= {-2.0f, -5.0f, -5.0f, -1.0f};
 
 /// Resets the camera position to default position and tilt
 void initializeCamera(struct Camera * Inst){
@@ -52,6 +58,12 @@ void initializeCamera(struct Camera * Inst){
 
 /// Positions the camera at the required place and rotation
 /// Zoom and spin is done by translate/rotate
+#if (defined(__GNUC__) && !defined(__clang__))
+__attribute__((optimize("Ofast")))
+#endif
+#if (!defined(__GNUC__) && defined(__clang__))
+__attribute__ ((optnone))
+#endif
 void position(struct Camera * Inst){
 	glTranslatef(0.0f, 0.0f, Inst->distance);
 	glRotatef(Inst->verticalTilt, 1.0f, 0.0f, 0.0f);
@@ -71,6 +83,12 @@ void position(struct Camera * Inst){
 }
 
 /// Decrements the distance to origin (zoom in)
+#if (defined(__GNUC__) && !defined(__clang__))
+__attribute__((optimize("Ofast")))
+#endif
+#if (!defined(__GNUC__) && defined(__clang__))
+__attribute__ ((optnone))
+#endif
 void dec(struct Camera * Inst){
 	#if defined(controlCamera)
 	Inst->distance--;
@@ -82,6 +100,12 @@ void dec(struct Camera * Inst){
 }
 
 /// Incrementes the distance to origin (zoom out)
+#if (defined(__GNUC__) && !defined(__clang__))
+__attribute__((optimize("Ofast")))
+#endif
+#if (!defined(__GNUC__) && defined(__clang__))
+__attribute__ ((optnone))
+#endif
 void inc(struct Camera * Inst){
 	#if defined(controlCamera)
 	Inst->distance++;
@@ -93,6 +117,12 @@ void inc(struct Camera * Inst){
 }
 
 /// Adjusts the camera rotation around the Y axis
+#if (defined(__GNUC__) && !defined(__clang__))
+__attribute__((optimize("Ofast")))
+#endif
+#if (!defined(__GNUC__) && defined(__clang__))
+__attribute__ ((optnone))
+#endif
 void clockwise(struct Camera * Inst){
 	#if defined(controlCamera)
 	Inst->horizontalAngle++;
@@ -104,6 +134,12 @@ void clockwise(struct Camera * Inst){
 }
 
 /// Adjusts the camera rotation around the Y axis
+#if (defined(__GNUC__) && !defined(__clang__))
+__attribute__((optimize("Ofast")))
+#endif
+#if (!defined(__GNUC__) && defined(__clang__))
+__attribute__ ((optnone))
+#endif
 void anticlockwise(struct Camera * Inst){
 #if defined(controlCamera)
 	Inst->horizontalAngle--;
@@ -116,6 +152,12 @@ void anticlockwise(struct Camera * Inst){
 
 /// Adjusts the camera rotation around the X axis
 /// the angle is locked if it gets above 0 degrees
+#if (defined(__GNUC__) && !defined(__clang__))
+__attribute__((optimize("Ofast")))
+#endif
+#if (!defined(__GNUC__) && defined(__clang__))
+__attribute__ ((optnone))
+#endif
 void tiltup(struct Camera * Inst){
 	if (Inst->verticalTilt < 0)
 		Inst->verticalTilt++;
@@ -123,27 +165,39 @@ void tiltup(struct Camera * Inst){
 
 /// Adjusts the camera rotation around the X axis
 /// The angle is locked if it gets greate than 90 degrees
+#if (defined(__GNUC__) && !defined(__clang__))
+__attribute__((optimize("Ofast")))
+#endif
+#if (!defined(__GNUC__) && defined(__clang__))
+__attribute__ ((optnone))
+#endif
 void tiltdown(struct Camera * Inst){
 	if (Inst->verticalTilt > -90)
 		Inst->verticalTilt--;
 }
 
 /// Default Constructor. Initialises defaults.
+#if (defined(__GNUC__) && !defined(__clang__))
+__attribute__((optimize("Ofast")))
+#endif
+#if (!defined(__GNUC__) && defined(__clang__))
+__attribute__ ((optnone))
+#endif
 void initializeScene(struct Scene * Inst){
 	TWLPrintf("-- Creating scene\n");
 
 	// set up our directional overhead lights
 	Inst->light0On = false;
 	Inst->light1On = false;
-	glLightfv(GL_LIGHT0, GL_AMBIENT, ambient0Scene);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse0Scene);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, specular0Scene);
-	glLightfv(GL_LIGHT0, GL_POSITION, position0Scene);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient0Scene); //GX unused
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse0Scene);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular0Scene); //GX unused
+	glLightfv(GL_LIGHT0, GL_POSITION, light_position0Scene);
 	
-	glLightfv(GL_LIGHT1, GL_AMBIENT, ambient1Scene);
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, diffuse1Scene);
-	glLightfv(GL_LIGHT1, GL_SPECULAR, specular1Scene);
-	glLightfv(GL_LIGHT1, GL_POSITION, position1Scene);
+	glLightfv(GL_LIGHT1, GL_AMBIENT, light_ambient1Scene);
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, light_diffuse1Scene);
+	glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular1Scene);
+	glLightfv(GL_LIGHT1, GL_POSITION, light_position1Scene);
 	
 	Inst->fogMode = false;
 	Inst->wireMode = false;		/// wireframe mode on / off
@@ -157,18 +211,36 @@ static bool renderCube = false;
 #ifdef WIN32
 static bool renderCube;
 #endif
+
+#if (defined(__GNUC__) && !defined(__clang__))
+__attribute__((optimize("Ofast")))
+#endif
+#if (!defined(__GNUC__) && defined(__clang__))
+__attribute__ ((optnone))
+#endif
 void render3DUpperScreen(){
 	//Update camera for NintendoDS Upper 3D Screen:
 	renderCube = false;
 }
 
+#if (defined(__GNUC__) && !defined(__clang__))
+__attribute__((optimize("Ofast")))
+#endif
+#if (!defined(__GNUC__) && defined(__clang__))
+__attribute__ ((optnone))
+#endif
 void render3DBottomScreen(){
 	//Update camera for NintendoDS Bottom 3D Screen
 	renderCube = true;
 }
 
-
 /// Renders a single frame of the scene
+#if (defined(__GNUC__) && !defined(__clang__))
+__attribute__((optimize("Ofast")))
+#endif
+#if (!defined(__GNUC__) && defined(__clang__))
+__attribute__ ((optnone))
+#endif
 void drawScene(){
 	struct Scene * Inst = &scene;
 
@@ -183,26 +255,56 @@ void drawScene(){
 	// Clear The Scene And The Depth Buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
 	#endif
-
-	glMatrixMode(GL_MODELVIEW);
+	
+	#ifdef ARM9
+	glMatrixMode(GL_TEXTURE); //GX 3D hardware needs this to enable texturing on a frame basis
+	#endif
+	
 	glLoadIdentity();
-
+	glMatrixMode(GL_MODELVIEW);
+	
 	//position camera
 	position(&Inst->camera); 
 	
 	// draw element(s) in the scene + light source(s)
 	#ifdef ARM9
+		glMaterialShinnyness();		
 		updateGXLights(); //Update GX 3D light scene!
 		glColor3f(1.0, 1.0, 1.0); //clear last scene color/light vectors
 	#endif
-
+	
+	{
+		#ifdef ARM9
+		GLfloat mat_ambient[]    = { 8.0f, 8.0f, 8.0f, 0.0f }; //NDS
+		GLfloat mat_diffuse[]    = { 16.0f, 16.0f, 16.0f, 0.0f }; //NDS
+		GLfloat mat_specular[]   = { 8.0f, 8.0f, 8.0f, 0.0f }; //NDS
+		GLfloat mat_emission[]   = { 5.0f, 5.0f, 5.0f, 0.0f }; //NDS
+		GLfloat high_shininess[] = { 128.0f }; //NDS
+		#endif
+		#ifdef WIN32
+		GLfloat mat_ambient[]    = { 0.7f, 0.7f, 0.7f, 1.0f }; //WIN32
+		GLfloat mat_diffuse[]    = { 0.8f, 0.8f, 0.8f, 1.0f }; //WIN32
+		GLfloat mat_specular[]   = { 1.0f, 1.0f, 1.0f, 1.0f }; //WIN32
+		GLfloat mat_emission[]   = { 1.0f, 1.0f, 1.0f, 1.0f }; //WIN32
+		GLfloat high_shininess[] = { 100.0f }; //WIN32
+		#endif
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_ambient); 
+		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION,  mat_emission);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, high_shininess);
+	}
+	GLfloat args[4];
+	args[0] = (GLfloat)RGB15(31,31,31);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, (const GLfloat*)&args);
+	
 	if(renderCube == false){
 		#ifdef WIN32
 		drawSphereCustom(32, 32, 32);
 		#endif
 
 		#ifdef ARM9
-		drawSphereCustom(3, 3, 3);
+		drawSphereCustom(1, 8, 8);
 		#endif
 	}
 	else{
@@ -238,44 +340,14 @@ void drawScene(){
 			}
 		}
 #endif
-		glTexParameteri(
-	#ifdef ARM9
-			0, 
-	#endif
-	#ifdef WIN32
-			GL_TEXTURE_2D,
-	#endif
-		GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(
-	#ifdef ARM9
-			0, 
-	#endif
-	#ifdef WIN32
-			GL_TEXTURE_2D,
-	#endif
-		GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(
-	#ifdef ARM9
-			0, 
-	#endif
-	#ifdef WIN32
-			GL_TEXTURE_2D,
-	#endif
-		GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(
-	#ifdef ARM9
-			0, 
-	#endif
-	#ifdef WIN32
-			GL_TEXTURE_2D,
-	#endif
-		GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-		GLfloat light_ambient[]  = { 0.4f, 0.4f, 0.4f, 0.4f };
-		GLfloat light_diffuse[]  = { 1.0f, 1.0f, 1.0f, 1.0f };
-		GLfloat light_specular[] = { 0.1f, 0.1f, xrot, 0.1f };
-		GLfloat light_position[] = { 0.1f, 0.1f, 0.1f, 0.0f };
-
+		//DS doesn't support filtering.
+		#ifdef WIN32
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		#endif
+		
 #ifdef ARM9
 	//Clear The Screen And The Depth Buffer
 	glReset(); //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	todo: implement https://stackoverflow.com/questions/28137027/why-do-i-need-glcleargl-depth-buffer-bit through cuboid tests and rendering into OpenGL
@@ -303,7 +375,7 @@ void drawScene(){
 					GL_TEXTURE_2D, texture[0]
 			#endif
 			#ifdef ARM9
-				0, texture[0]
+				0, textureSizePixelCoords[Texture_MetalCubeID].textureIndex
 			#endif	
 				);
 
@@ -312,10 +384,10 @@ void drawScene(){
 				glRotatef(45.0f-(2.0f*yloop)+xrot,1.0f,0.0f,0.0f);
 				glRotatef(45.0f+yrot,0.0f,1.0f,0.0f);
 
-				glLightfv(GL_LIGHT0, GL_AMBIENT,  light_ambient);
-				glLightfv(GL_LIGHT0, GL_DIFFUSE,  light_diffuse);
-				glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
-				glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+				glLightfv(GL_LIGHT0, GL_AMBIENT,  light_ambient0Scene);
+				glLightfv(GL_LIGHT0, GL_DIFFUSE,  light_diffuse0Scene);
+				glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular0Scene);
+				glLightfv(GL_LIGHT0, GL_POSITION, light_position0Scene);
 				
 				glColor3fv(boxcol[yloop-1]);
 				glCallList(box);
@@ -466,7 +538,9 @@ GLuint	top=-1;				// Storage For The Top Display List
 GLfloat	xrot=0.0;				// Rotates Cube On The X Axis
 GLfloat	yrot=0.0;				// Rotates Cube On The Y Axis
 
+#ifdef WIN32
 GLuint	texture[1];			// Storage For 1 Texture
+#endif
 
 #ifdef ARM9
 #if (defined(__GNUC__) && !defined(__clang__))
@@ -634,12 +708,14 @@ void setupTGDSProjectOpenGLDisplayLists(){
 #ifdef ARM9
 	//#1: Load a texture and map each one to a texture slot
 	u32 arrayOfTextures[1];
-	arrayOfTextures[0] = (u32)&Texture_Cube;  
-	int texturesInSlot = LoadLotsOfGLTextures((u32*)&arrayOfTextures, (int*)&texture, 1); //Implements both glBindTexture and glTexImage2D 
+	arrayOfTextures[0] = (u32)&Texture_Cube_metal;  
+	int texturesInSlot = LoadLotsOfGLTextures((u32*)&arrayOfTextures, (sizeof(arrayOfTextures)/sizeof(u32)) ); //Implements both glBindTexture and glTexImage2D 
 	int i = 0;
 	for(i = 0; i < texturesInSlot; i++){
-		//printf("Texture loaded: %d:textID[%d] Size: %d", i, textureArrayNDS[i], getTextureBaseFromTextureSlot(activeTexture));
+		printf("Tex. index: %d: Tex. name[%d]", i, getTextureNameFromIndex(i));
 	}
+	printf("Free Mem: %d KB", ((int)TGDSARM9MallocFreeMemory()/1024));
+	glCallListGX((u32*)&GXPayload); //Run this payload once to force cache flushes on DMA GXFIFO
 #endif
 
 	BuildLists();
@@ -647,7 +723,27 @@ void setupTGDSProjectOpenGLDisplayLists(){
 
 //glutSolidSphere(radius, 16, 16);  -> NDS GX Replacement
 void drawSphereCustom(float r, int lats, int longs) {
-	glCallList(DLCIRCLELIGHTSRC);
+	int i, j;
+	for (i = 0; i <= lats; i++) {
+		float lat0 = PI * (-0.5 + (float)(i - 1) / lats);
+		float z0 = sin((float)lat0);
+		float zr0 = cos((float)lat0);
+
+		float lat1 = PI * (-0.5 + (float)i / lats);
+		float z1 = sin((float)lat1);
+		float zr1 = cos((float)lat1);
+		glBegin(GL_TRIANGLE_STRIP);
+		for (j = 0; j <= longs; j++) {
+			float lng = 2 * PI * (float)(j - 1) / longs;
+			float x = cos(lng);
+			float y = sin(lng);
+			glNormal3f(x * zr0, y * zr0, z0);
+			glVertex3f(r * x * zr0, r * y * zr0, r * z0);
+			glNormal3f(x * zr1, y * zr1, z1);
+			glVertex3f(r * x * zr1, r * y * zr1, r * z1);
+		}
+		glEnd();
+	}
 }
 
 #ifdef ARM9
