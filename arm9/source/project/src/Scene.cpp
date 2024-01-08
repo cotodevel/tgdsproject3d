@@ -4,8 +4,9 @@
 #endif
 
 #include "Scene.h"
+#ifdef ARM9
 #include "GXPayload.h" //required to flush the GX<->DMA<->FIFO circuit on real hardware
-
+#endif
 #ifndef _MSC_VER
 					// //
 #define ARM9 1		// Enable only if not real GCC + NDS environment
@@ -23,24 +24,24 @@ int heightScene;	/// the height of the window
 //It defines the RGBA color of the diffuse light that a particular light source adds to a scene. By default, GL_DIFFUSE is (1.0, 1.0, 1.0, 1.0) for GL_LIGHT0, 
 //which produces a bright, white light as shown in the left side of "Plate 13" in Appendix I. 
 //The default value for any other light (GL_LIGHT1, ... , GL_LIGHT7) is (0.0, 0.0, 0.0, 0.0).
-GLfloat light_diffuse0Scene[4]	= {0.4f, 0.4f, 0.4f, 1.01f}; //WIN32
+GLfloat light_diffuse0Scene[4]	= {0.9f, 0.9f, 0.4f, 1.01f}; //WIN32
 
-#ifdef WIN32
 GLfloat light_ambient0Scene[4]	= {0.1f, 0.1f, 0.1f, 1.0f}; //WIN32
-GLfloat light_specular0Scene[4]	= {0.2f, 0.2f, 0.2f, 1.0f}; //WIN32
-GLfloat light_position0Scene[4]	= {0.0f, -1.0f, 0.0f, 0.0f}; //WIN32
-#endif
-#ifdef ARM9
-GLfloat light_ambient0Scene[]  = { 1.0f, 1.0f, 1.0f, 1.0f }; //NDS
-GLfloat light_specular0Scene[] = { 1.0f, 1.0f, 1.0f, 1.0f }; //NDS
-GLfloat light_position0Scene[] = { 0.0f, -1.0f, 0.0f, 0.0f }; //NDS
-#endif
+GLfloat light_specular0Scene[4]	= {0.6f, 0.6f, 0.6f, 1.0f}; //WIN32
+GLfloat light_position0Scene[4]	= {-1.0f, -1.0f, 1.0f, 0.0f}; //WIN32
 
 // light 1 colours
 GLfloat light_ambient1Scene[4]	= {0.1f, 0.1f, 0.1f, 1.0f};
 GLfloat light_diffuse1Scene[4]	= {0.45f, 0.45f, 0.45f, 1.0f};
 GLfloat light_specular1Scene[4]	= {0.5f, 0.5f, 0.5f, 1.0f};
 GLfloat light_position1Scene[4]	= {-2.0f, -5.0f, -5.0f, -1.0f};
+
+//material
+GLfloat mat_ambient[]    = { 8.0f, 8.0f, 8.0f, 0.0f }; 
+GLfloat mat_diffuse[]    = { 16.0f, 16.0f, 16.0f, 0.0f }; 
+GLfloat mat_specular[]   = { 8.0f, 8.0f, 8.0f, 0.0f }; 
+GLfloat mat_emission[]   = { 5.0f, 5.0f, 5.0f, 0.0f }; 
+GLfloat high_shininess[] = { 128.0f };
 
 /// Resets the camera position to default position and tilt
 void initializeCamera(struct Camera * Inst){
@@ -189,15 +190,6 @@ void initializeScene(struct Scene * Inst){
 	// set up our directional overhead lights
 	Inst->light0On = false;
 	Inst->light1On = false;
-	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient0Scene); //GX unused
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse0Scene);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular0Scene); //GX unused
-	glLightfv(GL_LIGHT0, GL_POSITION, light_position0Scene);
-	
-	glLightfv(GL_LIGHT1, GL_AMBIENT, light_ambient1Scene);
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, light_diffuse1Scene);
-	glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular1Scene);
-	glLightfv(GL_LIGHT1, GL_POSITION, light_position1Scene);
 	
 	Inst->fogMode = false;
 	Inst->wireMode = false;		/// wireframe mode on / off
@@ -272,31 +264,6 @@ void drawScene(){
 		updateGXLights(); //Update GX 3D light scene!
 		glColor3f(1.0, 1.0, 1.0); //clear last scene color/light vectors
 	#endif
-	
-	{
-		#ifdef ARM9
-		GLfloat mat_ambient[]    = { 8.0f, 8.0f, 8.0f, 0.0f }; //NDS
-		GLfloat mat_diffuse[]    = { 16.0f, 16.0f, 16.0f, 0.0f }; //NDS
-		GLfloat mat_specular[]   = { 8.0f, 8.0f, 8.0f, 0.0f }; //NDS
-		GLfloat mat_emission[]   = { 5.0f, 5.0f, 5.0f, 0.0f }; //NDS
-		GLfloat high_shininess[] = { 128.0f }; //NDS
-		#endif
-		#ifdef WIN32
-		GLfloat mat_ambient[]    = { 0.7f, 0.7f, 0.7f, 1.0f }; //WIN32
-		GLfloat mat_diffuse[]    = { 0.8f, 0.8f, 0.8f, 1.0f }; //WIN32
-		GLfloat mat_specular[]   = { 1.0f, 1.0f, 1.0f, 1.0f }; //WIN32
-		GLfloat mat_emission[]   = { 1.0f, 1.0f, 1.0f, 1.0f }; //WIN32
-		GLfloat high_shininess[] = { 100.0f }; //WIN32
-		#endif
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_ambient); 
-		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION,  mat_emission);
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, high_shininess);
-	}
-	GLfloat args[4];
-	args[0] = (GLfloat)RGB15(31,31,31);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, (const GLfloat*)&args);
 	
 	if(renderCube == false){
 		#ifdef WIN32
@@ -388,6 +355,19 @@ void drawScene(){
 				glLightfv(GL_LIGHT0, GL_DIFFUSE,  light_diffuse0Scene);
 				glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular0Scene);
 				glLightfv(GL_LIGHT0, GL_POSITION, light_position0Scene);
+	
+				glLightfv(GL_LIGHT1, GL_AMBIENT, light_ambient1Scene);
+				glLightfv(GL_LIGHT1, GL_DIFFUSE, light_diffuse1Scene);
+				glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular1Scene);
+				glLightfv(GL_LIGHT1, GL_POSITION, light_position1Scene);
+
+				#ifdef ARM9
+				glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_ambient); 
+				glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
+				glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
+				glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION,  mat_emission);
+				glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, high_shininess);
+				#endif
 				
 				glColor3fv(boxcol[yloop-1]);
 				glCallList(box);
@@ -513,6 +493,7 @@ int InitGL(int argc, char *argv[]){
 	glDisable(GL_CULL_FACE); 
 	glCullFace (GL_NONE);
 	glColorMaterial(GL_FRONT, GL_DIFFUSE); 
+	
 	glEnable(GL_COLOR_MATERIAL);	//allow to mix both glColor3f + light sources (glVertex + glNormal3f)
 
 	renderCube = true;
