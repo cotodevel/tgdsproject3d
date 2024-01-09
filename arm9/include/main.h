@@ -27,13 +27,11 @@ USA
 #include "utilsTGDS.h"
 #include "videoGL.h"
 
+#define Texture_MetalCubeID ((int)0)
+
 //project 1 multimedia list
 #define videoIntro ((char*)"0:/sth1.tvs") //video intro
 #define videoTest ((char*)"0:/test.tvs") 
-
-//tracks
-
-//sound effects
 
 #endif
 

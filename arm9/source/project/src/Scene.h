@@ -37,7 +37,7 @@
 #endif
 
 #ifdef ARM9
-#include "Texture_Cube.h"
+#include "Texture_Cube_metal.h"
 #include "consoleTGDS.h"
 #include "imagepcx.h"
 #endif
@@ -118,15 +118,17 @@ extern void render3DUpperScreen();
 extern void render3DBottomScreen();
 extern int startTGDSProject(int argc, char *argv[]);
 extern void TGDSAPPExit(u32 fn_address);
-
 extern GLfloat boxcol[5][3];
 extern GLfloat topcol[5][3];
 extern GLuint box;
 extern GLuint	top;
-extern GLuint	texture[1];
 extern GLvoid BuildLists();
 extern GLfloat	xrot;
 extern GLfloat	yrot;
+
+#ifdef WIN32
+extern GLuint	texture[1];
+#endif
 
 #ifdef WIN32
 extern void load_image(const char* filename);
