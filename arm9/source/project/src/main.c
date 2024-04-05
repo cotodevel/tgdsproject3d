@@ -40,10 +40,14 @@ USA
 #include "InterruptsARMCores_h.h"
 #include "interrupts.h"
 #include "ipcfifoTGDSUser.h"
-
+#include "loader.h"
 #include "grass_tex.h"
 #include "fish_tex.h"
 #include <ctype.h>
+
+//ARM7 VRAM core
+#include "arm7vram.h"
+#include "arm7vram_twl.h"
 
 #ifdef __cplusplus
 extern "C"{
@@ -83,6 +87,20 @@ int main(int argc, char *argv[])
 
 	#ifdef ARM9
 	/*			TGDS 1.6 Standard ARM9 Init code start	*/
+	//Save Stage 1: IWRAM ARM7 payload: NTR/TWL (0x03800000)
+	memcpy((void *)TGDS_MB_V3_ARM7_STAGE1_ADDR, (const void *)0x02380000, (int)(96*1024));	//
+	coherent_user_range_by_size((uint32)TGDS_MB_V3_ARM7_STAGE1_ADDR, (int)(96*1024)); //		also for TWL binaries 
+	
+	//Execute Stage 2: VRAM ARM7 payload: NTR/TWL (0x06000000)
+	u32 * payload = NULL;
+	if(__dsimode == false){
+		payload = (u32*)&arm7vram[0];	
+	}
+	else{
+		payload = (u32*)&arm7vram_twl[0];
+	}
+	executeARM7Payload((u32)0x02380000, 96*1024, payload);
+	
 	bool isTGDSCustomConsole = true;	//set default console or custom console: custom console 
 	GUI_init(isTGDSCustomConsole);
 	GUI_clear();
