@@ -33,6 +33,9 @@ D-PAD Down: Move camera further
 A: Enable background music
 B: Enable background music
 
+Key R: Swap screens
+
+Note: TGDSProject3D offers Custom ARM7 VRAM Core providing all necessary services for wifi + soundstream + homebrew loader 
 
 ____Remoteboot____
 Also, it's recommended to use the remoteboot feature. It allows to send the current TGDS Project over wifi removing the necessity
