@@ -4,6 +4,8 @@
 #endif
 
 #include "Scene.h"
+#include "loader.h"
+
 #ifdef ARM9
 #include "GXPayload.h" //required to flush the GX<->DMA<->FIFO circuit on real hardware
 #endif
@@ -801,6 +803,40 @@ int startTGDSProject(int argc, char *argv[])
 		u32 keys = keysHeld()&(KEY_UP|KEY_DOWN|KEY_LEFT|KEY_RIGHT|KEY_SELECT|KEY_START);
 		keyboardInputSpecial(keys, 0, 0);
 		
+		/*
+		//Go back to TGDS-multiboot
+		if(keysDown() & KEY_L){	
+			haltARM7(); //required
+			char thisArgv[3][MAX_TGDSFILENAME_LENGTH];
+			memset(thisArgv, 0, sizeof(thisArgv));
+			strcpy(&thisArgv[0][0], "");	//Arg0:	This Binary loaded
+			strcpy(&thisArgv[1][0], "");	//Arg1:	NDS Binary to chainload through TGDS-MB
+			strcpy(&thisArgv[2][0], "");	//Arg2: NDS Binary loaded from TGDS-MB	
+			char * TGDS_MB = NULL;
+			if(__dsimode == true){
+				TGDS_MB = "0:/ToolchainGenericDS-multiboot.srl";
+			}
+			else{
+				TGDS_MB = "0:/ToolchainGenericDS-multiboot.nds";
+			}
+			u32 * payload = getTGDSARM7VRAMCore();
+			if(TGDSMultibootRunNDSPayload(TGDS_MB, (u8*)payload, 0, (char*)&thisArgv) == false){ //should never reach here, nor even return true. Should fail it returns false
+				
+			}
+			while(keysDown() & KEY_L){
+				scanKeys();
+			}
+		}
+		*/
+		
+		if(keysDown() & KEY_R){	
+			GUI.GBAMacroMode = !GUI.GBAMacroMode; //swap LCD
+			TGDSLCDSwap();
+			
+			while(keysDown() & KEY_R){
+				scanKeys();
+			}
+		}
 		
 		//sound (ARM7)
 		
