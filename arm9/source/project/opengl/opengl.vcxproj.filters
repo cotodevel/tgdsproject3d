@@ -47,7 +47,7 @@
     <ClCompile Include="..\..\..\..\..\toolchaingenericds\src\common\libutils\arm9\source\ndsDisplayListUtils.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Scene.cpp">
+    <ClCompile Include="..\src\Scene.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

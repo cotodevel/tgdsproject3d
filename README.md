@@ -33,6 +33,7 @@ D-PAD Down: Move camera further
 A: Enable background music
 B: Enable background music
 
+Key L: Run ToolchainGenericDS-multiboot
 Key R: Swap screens
 
 Note: TGDSProject3D offers Custom ARM7 VRAM Core providing all necessary services for wifi + soundstream + homebrew loader 

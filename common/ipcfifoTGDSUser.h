@@ -18,13 +18,13 @@ USA
 
 */
 
+
 //TGDS required version: IPC Version: 1.3
 
 //IPC FIFO Description: 
 //		struct sIPCSharedTGDS * TGDSIPC = TGDSIPCStartAddress; 														// Access to TGDS internal IPC FIFO structure. 		(ipcfifoTGDS.h)
 //		struct sIPCSharedTGDSSpecific * TGDSUSERIPC = (struct sIPCSharedTGDSSpecific *)TGDSIPCUserStartAddress;		// Access to TGDS Project (User) IPC FIFO structure	(ipcfifoTGDSUser.h)
 
-//inherits what is defined in: ipcfifoTGDS.h
 #ifndef __ipcfifoTGDSUser_h__
 #define __ipcfifoTGDSUser_h__
 
@@ -46,9 +46,9 @@ struct sIPCSharedTGDSSpecific {
 
 //TGDS Memory Layout ARM7/ARM9 Cores
 #define TGDS_ARM7_MALLOCSTART (u32)(0x06018000)
-#define TGDS_ARM7_MALLOCSIZE (int)(512)
-#define TGDSDLDI_ARM7_ADDRESS (u32)(TGDS_ARM7_MALLOCSTART + TGDS_ARM7_MALLOCSIZE) //ARM7DLDI: 16K
-#define TGDS_ARM7_AUDIOBUFFER_STREAM (u32)((int)TGDSDLDI_ARM7_ADDRESS + (16*1024))	//Unused: 15K
+#define TGDS_ARM7_MALLOCSIZE (int)(16*1024)
+#define TGDSDLDI_ARM7_ADDRESS (u32)(TGDS_ARM7_MALLOCSTART + TGDS_ARM7_MALLOCSIZE)	//0x0601C000
+#define TGDS_ARM7_AUDIOBUFFER_STREAM (u32)(0x03800000)
 
 #define FIFO_PLAYSOUNDSTREAM_FILE (u32)(0xFFFFABCB)
 #define FIFO_STOPSOUNDSTREAM_FILE (u32)(0xFFFFABCC)
@@ -98,6 +98,7 @@ extern void playerStopARM7();
 #endif
 
 #ifdef ARM9
+extern void initHardwareCustom(u8 DSHardware);
 extern u32 playSoundStreamFromFile(char * videoStructFDFilename, bool loop, u32 streamType);
 extern void BgMusic(char * filename);
 extern void BgMusicOff();
