@@ -31,7 +31,6 @@ USA
 
 //project 1 multimedia list
 #define videoIntro ((char*)"0:/sth1.tvs") //video intro
-#define videoTest ((char*)"0:/test.tvs") 
 
 #endif
 
@@ -40,9 +39,11 @@ USA
 extern "C" {
 #endif
 
-extern u32 * getTGDSARM7VRAMCore();
-extern int main(int argc, char **argv);
+extern u32 * getTGDSMBV3ARM7Bootloader(); //Required by ToolchainGenericDS-multiboot v3
+extern u32 * getTGDSMBV3ARM7Stage1(); //required by TGDS-mb v3's ARM7 @ 0x03800000
+
 extern void menuShow();
+extern int main(int argc, char **argv);
 extern char curChosenBrowseFile[MAX_TGDSFILENAME_LENGTH];
 extern struct fd * _FileHandleVideo; 
 extern struct fd * _FileHandleAudio;
