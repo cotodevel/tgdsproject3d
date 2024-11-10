@@ -29,7 +29,7 @@ USA
 //After that, TGDS project initializes the default/custom allocator automatically.
 
 
-	////////[Custom Memory implementation ]////////
+	////////[Custom Memory implementation: [NTR 4MB] [TWL 16MB] EWRAM malloc support ]////////
 
 //Definition that overrides the weaksymbol expected from toolchain to init ARM9's TGDS memory allocation
 #if (defined(__GNUC__) && !defined(__clang__))
@@ -44,8 +44,33 @@ struct AllocatorInstance * getProjectSpecificMemoryAllocatorSetup(bool isCustomT
 	memset((u8*)customMemoryAllocator, 0, sizeof(CustomAllocatorInstance));
 	customMemoryAllocator->customMalloc = isCustomTGDSMalloc;
 	
+	if(__dsimode == true){
+		//Enable 16M EWRAM (TWL) Malloc
+		u32 SFGEXT9 = *(u32*)0x04004008;
+		//14-15 Main Memory RAM Limit (0..1=4MB/DS, 2=16MB/DSi, 3=32MB/DSiDebugger)
+		SFGEXT9 = (SFGEXT9 & ~(0x3 << 14)) | (0x2 << 14);
+		*(u32*)0x04004008 = SFGEXT9;
+		
+		//We need to tell the dmalloc system we have 16M (TWL) RAM now
+		physical_ewram_end = (u32)0x03000000;
+	}
+	else{
+		//Otherwise Enable 4M EWRAM (NTR) Malloc
+	}
+	
 	customMemoryAllocator->ARM9MallocStartaddress = (u32)sbrk(0);
-	customMemoryAllocator->memoryToAllocate = (1000*1024);
+	
+	if ((int)customMemoryAllocator->ARM9MallocStartaddress == (int)-1){
+		printf("TGDSAPP:Exit(); sbrk() has ran out of memory");
+		while(1==1){}
+	}
+	if(__dsimode == true){
+		customMemoryAllocator->memoryToAllocate = (1024*1024*14) + (768*1024);
+	}
+	else{
+		customMemoryAllocator->memoryToAllocate = (1000*1024);
+	}
+	
 	customMemoryAllocator->CustomTGDSMalloc9 = (TGDSARM9MallocHandler)&Xmalloc;
 	customMemoryAllocator->CustomTGDSCalloc9 = (TGDSARM9CallocHandler)&Xcalloc;
 	customMemoryAllocator->CustomTGDSFree9 = (TGDSARM9FreeHandler)&Xfree;
@@ -58,7 +83,7 @@ struct AllocatorInstance * getProjectSpecificMemoryAllocatorSetup(bool isCustomT
 	XmemSetup(xmemsize, XMEM_BS);
 	XmemInit(customMemoryAllocator->ARM9MallocStartaddress, (u32)customMemoryAllocator->memoryToAllocate);
 	
-	//ARM7 TGDS 96K = 0x037f8000 ~ 0x03810000. TGDS Sound Streaming code: Disabled/Custom
+	//Memory Setup: ARM7 TGDS 96K = 0x037f8000 ~ 0x03810000. TGDS Sound Streaming code: Disabled
 	WRAM_CR = WRAM_0KARM9_32KARM7;
 	return customMemoryAllocator;
 }
