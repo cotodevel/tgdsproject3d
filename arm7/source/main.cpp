@@ -42,9 +42,6 @@ __attribute__((section(".iwram64K")))
 IMA_Adpcm_Player backgroundMusicPlayer;	//Actual PLAYER Instance. See ima_adpcm.cpp -> [PLAYER: section
 
 __attribute__((section(".iwram64K")))
-IMA_Adpcm_Player SoundEffect0Player;
-
-__attribute__((section(".iwram64K")))
 FATFS fileHandle;					// bootloader / / Sound stream handle
 
 __attribute__((section(".iwram64K")))
@@ -109,11 +106,7 @@ void playSoundStreamARM7(){
 			//ADPCM Playback!
 		}
 	}
-	else if(streamType == FIFO_PLAYSOUNDEFFECT_FILE){
-		if(SoundEffect0Player.play(loop_audio, automatic_updates, ADPCM_SIZE, stopSoundStreamUser, currentFH, streamType) == 0){
-			//ADPCM Sample Playback!
-		}
-	}
+	
 	fifomsg[33] = (u32)fresult;
 }
 
