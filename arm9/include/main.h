@@ -56,6 +56,8 @@ extern bool stopSoundStreamUser();
 extern void closeSoundUser();
 extern bool get_pen_delta( int *dx, int *dy );	
 extern int pendPlay;
+extern struct task_Context * internalTGDSThreads;
+extern void onThreadOverflowUserCode(u32 * args);
 
 #ifdef __cplusplus
 }

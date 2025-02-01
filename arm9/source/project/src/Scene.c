@@ -229,7 +229,7 @@ void render3DBottomScreen(){
 
 /// Renders a single frame of the scene
 #if (defined(__GNUC__) && !defined(__clang__))
-__attribute__((optimize("Ofast")))
+__attribute__((optimize("O0")))
 #endif
 #if (!defined(__GNUC__) && defined(__clang__))
 __attribute__ ((optnone))
@@ -318,8 +318,7 @@ void drawScene(){
 		
 #ifdef ARM9
 	//Clear The Screen And The Depth Buffer
-	glReset(); //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	todo: implement https://stackoverflow.com/questions/28137027/why-do-i-need-glcleargl-depth-buffer-bit through cuboid tests and rendering into OpenGL
-	//Instead, we forcefully reset so always points to a first default projection matrix, then matrix node relative to a first default modelview 
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	todo: implement https://stackoverflow.com/questions/28137027/why-do-i-need-glcleargl-depth-buffer-bit through cuboid tests and rendering into OpenGL
 	
 	//Set initial view to look at
 	gluPerspective(18, 256.0 / 192.0, 0.1, 40);
@@ -384,9 +383,9 @@ void drawScene(){
 
 	#ifdef ARM9
     glFlush();
-	handleARM9SVC();	/* Do not remove, handles TGDS services */
-    IRQVBlankWait();
-    #endif
+	bool waitForVblank = true;	//TGDS threads + OpenGL frame
+	int threadsRan = runThreads(internalTGDSThreads, waitForVblank);
+	#endif
 }
 
 void glut2SolidCube0_06f() {
@@ -483,7 +482,6 @@ int InitGL(int argc, char *argv[]){
 		menuShow();
 	}
 	REG_IE |= IRQ_VBLANK;
-	glReset(); //Depend on GX stack to render scene
 	glClearColor(0,35,195);		// blue green background colour
 
 	/* TGDS 1.65 OpenGL 1.1 Initialization */
@@ -793,9 +791,8 @@ int startTGDSProject(int argc, char *argv[])
 #if defined(ARM9)
 	BgMusicOff();
 	BgMusic("0:/bgm.ima");
-	startTimerCounter(tUnitsMilliseconds, 1);
     glMaterialShinnyness();
-	glReset(); //Depend on GX stack to render scene
+	REG_IE |= IRQ_VBLANK;
 	while(1==1){
 		//Handle Input & game logic
 		scanKeys();
